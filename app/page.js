@@ -1,5 +1,4 @@
 "use client";
-
 import { Box, Button, Stack, TextField } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 
@@ -8,7 +7,8 @@ export default function Home() {
     {
       role: "assistant",
       content:
-        "Hi! I'm the Headstarter support assistant. How can I help you today?",
+        "Hello! I'm here to help you study data structures and algorithms.\
+        You can ask me about concepts, code snippets, or any specific problems you're working on. How can I help you today?",
     },
   ]);
   const [message, setMessage] = useState("");
@@ -37,14 +37,14 @@ export default function Home() {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
+      
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const text = decoder.decode(value, { stream: true });
+        const text = decoder.decode(value, { stream: true }); 
         setMessages((messages) => {
           let lastMessage = messages[messages.length - 1];
           let otherMessages = messages.slice(0, messages.length - 1);
@@ -90,15 +90,20 @@ export default function Home() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
+      
     >
+
       <Stack
         direction={"column"}
-        width="500px"
+        width="600px"
         height="700px"
         border="1px solid black"
         p={2}
         spacing={3}
+        
       >
+
+        
         <Stack
           direction={"column"}
           spacing={2}
@@ -136,10 +141,10 @@ export default function Home() {
             fullWidth
             value={message}
             onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={handleKeyPress}
           />
           <Button
             variant="contained"
-            onKeyDown={handleKeyPress}
             onClick={sendMessage}
           >
             Send
