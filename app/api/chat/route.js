@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import {
   BedrockRuntimeClient,
-  InvokeModelWithResponseStreamCommand,
+  InvokeModelCommand,
 } from "@aws-sdk/client-bedrock-runtime";
 //import { ReadableStream } from "openai/_shims";
 // Import NextResponse from Next.js for handling responses
@@ -23,7 +23,7 @@ const systemPrompt =
 
   export async function POST(req) {
 
-    const modelId = "anthropic.claude-3-haiku-20240307-v1:0";
+    const modelId = "mistral.mistral-large-2402-v1:0";
     const data = await req.json();
     console.log("data -->", data);
 
@@ -32,90 +32,26 @@ const systemPrompt =
   
     // Prepare the payload for the model.
     const payload = {
-      anthropic_version: "bedrock-2023-05-31",
-      max_tokens: 100,
-      system:systemPrompt,
-      messages: [{"role": "user", "content": "Hello there."},...data]
+      temperature:0.5,
+      max_tokens: 500,
+      messages: [{role: "system", content: systemPrompt},...data]
     };
   
-    // Invoke Claude with the payload and wait for the API to respond.
-    const command = new InvokeModelWithResponseStreamCommand({
+    // Invoke Mistral with the payload and wait for the API to respond.
+    const command = new InvokeModelCommand({
       contentType: "application/json",
       body: JSON.stringify(payload),
       modelId:modelId,
     });
+
     const apiResponse = await client.send(command);
-  
-    let completeMessage = "";
-  
-    // Decode and process the response stream
-    for await (const item of apiResponse.body) {
-      /*  @type Chunk */
-      const chunk = JSON.parse(new TextDecoder().decode(item.chunk.bytes));
-      const chunk_type = chunk.type;
-  
-      if (chunk_type === "content_block_delta") {
-        const text = chunk.delta.text;
-        completeMessage = completeMessage + text;
-        //process.stdout.write(text);
-      }
-    }
-  
-    // Return the final response
-    return new NextResponse(completeMessage);
+    
+    const decodedResponseBody = new TextDecoder().decode(apiResponse.body);
+    const responseBody = JSON.parse(decodedResponseBody);
+    //console.log(responseBody.choices[0].message.content);
+
+    
+    return new NextResponse(responseBody.choices[0].message.content);
   };
   
-
   
-
-  /*
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: systemPrompt }, ...data], // Include the system prompt and user messages
-    model: "gpt-4o", // Specify the model to use
-    stream: true, // Enable streaming responses
-  });
-  
-
-  console.log("completion -->", completion);
-  *
-
-    // Send the command to the model and wait for the response
-  const response = await client.send(command);
-  
-    // Extract and print the streamed response text in real-time.
-
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder(); // Create a TextEncoder to convert strings to Uint8Array
-      try {
-        // Iterate over the streamed chunks of the response
-        for await (const item of response.stream) {
-          const content = item.contentBlockDelta;
-
-          if (content) {
-            const text = encoder.encode(content); // Encode the content to Uint8Array
-            controller.enqueue(text); // Enqueue the encoded text to the stream
-          }
-        }
-        /*
-        for await (const chunk of completion) {
-          const content = chunk.choices[0]?.delta?.content; // Extract the content from the chunk
-          if (content) {
-            const text = encoder.encode(content); // Encode the content to Uint8Array
-            controller.enqueue(text); // Enqueue the encoded text to the stream
-          }
-        }
-          */
-         /*
-      } catch (err) {
-        controller.error(err); // Handle any errors that occur during streaming
-      } finally {
-        controller.close(); // Close the stream when done
-      }
-    },
-  });
-
-  return new NextResponse(stream);
-}
-  */
