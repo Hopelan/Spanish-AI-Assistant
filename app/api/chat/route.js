@@ -1,57 +1,47 @@
 import { NextResponse } from "next/server";
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand,
-} from "@aws-sdk/client-bedrock-runtime";
+
+import OpenAI from "openai";
 //import { ReadableStream } from "openai/_shims";
 // Import NextResponse from Next.js for handling responses
 //import OpenAI from "openai";
 
 const systemPrompt =
-  "You are a chatbot designed to assist computer science students studying for data structures and algorithms exams. You handle both text in any human language and code,in any programming language.\
-  Your capabilities include:\
-  Clarify data structures and algorithms concepts.\
-  Analyze, debug, and explain code snippets\
-  Address theory and practical problem-solving inquiries.\
-  Offer and explain example problems and solutions.\
-  Understand and respond to inputs in various languages.\
-  Engage with students to solve problems and explain concepts.\
-  Your responses should be concise and complete within 50 words\
-  Usage: Provide accurate, contextually relevant responses and explanations for both text and code inputs.\
-  You only answer question srelated to data structures and algorithms, if a user asks other questions, for example about biology without any relation to data astructures and algorithms\
-  you must politely decline to answer.";
+`
 
-  export async function POST(req) {
+You are a bilingual business assistant fluent in both Portuguese and Chinese. Your task is to facilitate communication by translating text between these two languages in a professional, business-appropriate manner. When a message is received in Chinese, translate it into Portuguese. If the message is in Portuguese, translate it into Chinese. The context is an online business conversation, so the tone should remain polite, formal, and professional at all times. Ensure that the translations are clear, concise, and accurate, reflecting the appropriate business etiquette and formalities of each language.";
+`
+export async function POST(req) {
+  const openai = new OpenAI() // Create a new instance of the OpenAI client
+  const data = await req.json() // Parse the JSON body of the incoming request
 
-    const modelId = "mistral.mistral-large-2402-v1:0";
-    const data = await req.json();
-    console.log("data -->", data);
+  // Create a chat completion request to the OpenAI API
+  const completion = await openai.chat.completions.create({
+    messages: [{role: 'system', content: systemPrompt}, ...data], // Include the system prompt and user messages
+    model: 'gpt-4o', // Specify the model to use
+    stream: true, // Enable streaming responses
+  })
 
-    // Create a new Bedrock Runtime client instance.
-    const client = new BedrockRuntimeClient({ region: "ap-southeast-2" });
-  
-    // Prepare the payload for the model.
-    const payload = {
-      temperature:0.5,
-      max_tokens: 500,
-      messages: [{role: "system", content: systemPrompt},...data]
-    };
-  
-    // Invoke Mistral with the payload and wait for the API to respond.
-    const command = new InvokeModelCommand({
-      contentType: "application/json",
-      body: JSON.stringify(payload),
-      modelId:modelId,
-    });
+  // Create a ReadableStream to handle the streaming response
+  const stream = new ReadableStream({
+    async start(controller) {
+      const encoder = new TextEncoder() // Create a TextEncoder to convert strings to Uint8Array
+      try {
+        // Iterate over the streamed chunks of the response
+        for await (const chunk of completion) {
+          const content = chunk.choices[0]?.delta?.content // Extract the content from the chunk
+          if (content) {
+            const text = encoder.encode(content) // Encode the content to Uint8Array
+            controller.enqueue(text) // Enqueue the encoded text to the stream
+          }
+        }
+      } catch (err) {
+        controller.error(err) // Handle any errors that occur during streaming
+      } finally {
+        controller.close() // Close the stream when done
+      }
+    },
+  })
 
-    const apiResponse = await client.send(command);
-    
-    const decodedResponseBody = new TextDecoder().decode(apiResponse.body);
-    const responseBody = JSON.parse(decodedResponseBody);
-    //console.log(responseBody.choices[0].message.content);
-
-    
-    return new NextResponse(responseBody.choices[0].message.content);
-  };
-  
+  return new NextResponse(stream) // Return the stream as the response
+}
   

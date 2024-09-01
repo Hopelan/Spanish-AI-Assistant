@@ -7,10 +7,9 @@ export default function Home() {
     {
       role: "assistant",
       content:
-        "Hello! I'm here to help you study data structures and algorithms.\
-        You can ask me about concepts, code snippets, or any specific problems you're working on. How can I help you today?",
-    },
-  ]);
+        "Hello! I'm here to help you with translations between Chinese and Portuguese. Type the text you would like me to translate directly below"
+    }
+      ]);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
