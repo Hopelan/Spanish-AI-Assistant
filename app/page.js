@@ -80,22 +80,38 @@ export default function Home() {
 
   return (
     <Box
-      width="100vw"
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
+      sx={{
+      width: "100%",
+      minHeight: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      p: 1, // Add padding to prevent content from touching screen edges
+    }}
       
     >
 
       <Stack
-        direction={"column"}
-        width="600px"
-        height="700px"
-        border="1px solid black"
-        p={2}
+        direction="column"
         spacing={3}
+        sx={{
+          width: {
+            xs: "100%",    // Full width on extra-small screens
+            sm: "90%",     // 90% width on small screens
+            md: "600px",   // 600px width on medium screens and up
+          },
+          height: {
+            xs: "100%",    // Full height on extra-small screens
+            sm: "90%",     // 90% height on small screens
+            md: "700px",   // 700px height on medium screens and up
+          },
+          border: "1px solid black",
+          borderRadius: 2, // Add some border radius for aesthetics
+          p: 2,            // Padding inside the Stack
+          boxSizing: "border-box",
+          overflow: "hidden", // Hide overflow to prevent content spill
+        }}
         
       >
 
