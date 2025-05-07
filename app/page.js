@@ -135,7 +135,7 @@ export default function Home() {
                 bgcolor={
                   message.role === "assistant"
                     ? "#4A90E2"
-                    : "#E6ECEF"
+                    : "#50C878"
                 }
                 color="white"
                 borderRadius={16}
