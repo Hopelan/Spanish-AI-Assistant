@@ -157,6 +157,7 @@ export default function Home() {
           />
           <Button
             variant="contained"
+            color = "#2C3E50"
             onClick={sendMessage}
           >
             Send
