@@ -134,8 +134,8 @@ export default function Home() {
               <Box
                 bgcolor={
                   message.role === "assistant"
-                    ? "primary.main"
-                    : "secondary.main"
+                    ? "#4A90E2"
+                    : "#E6ECEF"
                 }
                 color="white"
                 borderRadius={16}
