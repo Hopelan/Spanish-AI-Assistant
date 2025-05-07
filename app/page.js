@@ -156,7 +156,7 @@ export default function Home() {
             onKeyDown={handleKeyPress}
           />
           <Button
-            variant="contained" color="#2C3E50"
+            variant="contained"
             onClick={sendMessage}
           >
             Send
