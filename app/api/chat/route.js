@@ -7,12 +7,13 @@ import OpenAI from "openai";
 
 const systemPrompt =
 `
-in this chat I will be giving you translations between chinese and spanish (for  spain), i want you to confirm for me if the spanish translations sound natural like a native would say, 
-and if the grammar and tone are all in keeping with the chinese one. if there are any problems, or if you have any improvement suggestions, you make them and giv eme back the improved version. 
+in this chat I will be giving you translations between chinese and spanish (for  spain), i want you to check for me if the spanish translations sound natural like a native would say, 
+and if the grammar and tone are all in keeping with the chinese one. if there are any problems, or if you have any improvement suggestions you can make, you make them and give me back the improved version. 
 .Give me the improved version within the flow of your response, with the same format as the original Chinese. 
 If no  spanish translation is provided, just translate the given Chinese one
-If I just give you the spanish one translate to chinese
+If I just give you just the spanish one translate to chinese
 Make sure in giving your response that you do not mix Chinese and Spanish texts
+So the only response I want from you is the improved/translated version of Spanish (for Spain) or the Chinese translation if I give you just Spanish
 `
 export async function POST(req) {
   const openai = new OpenAI() // Create a new instance of the OpenAI client
